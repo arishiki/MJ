@@ -3,7 +3,7 @@ import re
 #make list of differences
 #...a bit awkward to use zip to refer "next" element
 def make_dif(list0):
-    return [x[1]-x[0] for x in zip(list0[:-1], list0[1:])]
+    return ''.join([str(x[1]-x[0]) for x in zip(list0[:-1], list0[1:])])
 
 #as regular, chiitoi must have 7 different pairs
 #meaning that it doesn't contain 4 identical pies
@@ -43,6 +43,26 @@ def chiitoi_wait(dif):
 
     return candidate
 
+def shorten_list_from_dif(list, *args):
+
+    #shorten the list by naming specific index of dif_str
+    #example:
+    #slfd([1,1,1,2,2,3,4,5], 2, 4) = [1,1,2,4,5]
+    #when you want to exclude the 1,2,3 ments found by
+    #its difference.
+    
+    start = 0
+    result = []
+    for i in range(len(args)):
+        if i < len(args) - 1:
+            result = result + list[start:args[i]]
+            start = args[i] + 1
+        else:
+            result = result + list[start:args[i]] + list[args[i] + 2:]
+
+    return result
+    
+
 def is_all_ments(list, str_dif):
     #we get stringfied version of dif because we want to
     #use regular expression.
@@ -57,10 +77,15 @@ def is_all_ments(list, str_dif):
     if not list:
         return True
     elif not len(list) % 3:
-        str_dif = 
-        m = re.match(str('0*(1)0*(1)', str_dif)
-        if str_dif[:2] = [1,1]:
-            return is_all_ments(list[3:], str_dif[2:])
+        m = re.match('0*(1)0*(1)', str_dif)
+        if m:
+            shortened_list = \
+                shorten_list_from_dif(list, m.start(1), m.start(2))
+            shortened_str_dif = make_dif(shortened_list)
+                             
+        return (str_dif[:2] == '00' and is_all_ments(list[3:], str_dif[2:])) \
+            or (m and is_all_ments(shortened_list, shortened_str_dif))
+
     else:
         return False
         
