@@ -82,8 +82,12 @@ def is_all_ments(list, str_dif):
             shortened_list = \
                 shorten_list_from_dif(list, m.start(1), m.start(2))
             shortened_str_dif = make_dif(shortened_list)
+
+        else:
+            shortened_list = []
+            shortened_str_dif = ''
                              
-        return (str_dif[:2] == '00' and is_all_ments(list[3:], str_dif[2:])) \
+        return (str_dif[:2] == '00' and is_all_ments(list[3:], str_dif[3:])) \
             or (m and is_all_ments(shortened_list, shortened_str_dif))
 
     else:
