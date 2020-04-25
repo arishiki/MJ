@@ -43,27 +43,36 @@ def chiitoi_wait(dif):
 
     return candidate
 
-def shorten_list_from_dif(list, *args):
 
-    #shorten the list by naming specific index of dif_str
-    #example:
-    #slfd([1,1,1,2,2,3,4,5], 2, 4) = [1,1,2,4,5]
-    #when you want to exclude the 1,2,3 ments found by
-    #its difference.
+# def shorten_list_from_dif(list, *args):
+
+#     #shorten the list by naming specific index of dif_str
+#     #example:
+#     #slfd([1,1,1,2,2,3,4,5], 2, 4) = [1,1,2,4,5]
+#     #when you want to exclude the 1,2,3 ments found by
+#     #its difference.
     
-    start = 0
-    result = []
-    for i in range(len(args)):
-        if i < len(args) - 1:
-            result = result + list[start:args[i]]
-            start = args[i] + 1
-        else:
-            result = result + list[start:args[i]] + list[args[i] + 2:]
+#     start = 0
+#     result = []
+#     for i in range(len(args)):
+#         if i < len(args) - 1:
+#             result = result + list[start:args[i]]
+#             start = args[i] + 1
+#         else:
+#             result = result + list[start:args[i]] + list[args[i] + 2:]
 
-    return result
+#     return result
+
+
+def list_remove_list(list0, list_rm):
+    #remove elements of list_rm from list0
+    for i in list_rm:
+        if i in list0:
+            list0.remove(i)
+    return list0
     
 
-def is_all_ments(list, str_dif):
+def is_all_ments(list):
     #we get stringfied version of dif because we want to
     #use regular expression.
     
@@ -74,22 +83,40 @@ def is_all_ments(list, str_dif):
     
     #if you have excluded all the ments and you have empty list,
     #then it is all ments.
+    
     if not list:
         return True
     elif not len(list) % 3:
-        m = re.match('0*(1)0*(1)', str_dif)
-        if m:
-            shortened_list = \
-                shorten_list_from_dif(list, m.start(1), m.start(2))
-            shortened_str_dif = make_dif(shortened_list)
-
-        else:
-            shortened_list = []
-            shortened_str_dif = ''
+        shunts = list[0]+1 in list and list[0]+2 in list
                              
-        return (str_dif[:2] == '00' and is_all_ments(list[3:], str_dif[3:])) \
-            or (m and is_all_ments(shortened_list, shortened_str_dif))
-
+        return (list[0] == list[2] and is_all_ments(list[3:])) \
+            or (shunts and is_all_ments(list_remove_list(list, \
+                                        [list[0], list[0]+1, list[0]+2])))
     else:
         return False
         
+def analyze_machi_without_head(list, head, sols):
+    #judges if the list waits for ataris without head.
+    #it returns updated sols.
+    #head is an integer(0 for null)
+
+    if len(list) % 3 == 2:
+        p1 = list[0]
+        if p1+1 in list:
+            if p1+2 in list:
+                #if we take shunts away and the remainder was machi without
+                #head, then the full body is also machi without head
+                analyze_machi_without_head(list_remove_list(), \
+                                           head, sols)
+
+
+            #example: from 2,2,3,4,4,5,6,7 we take 2,4 away
+            #and the remainder is all_ments
+            #so we add 3 to sols
+            if not p1+1 in sols and \
+               is_all_ments(list_remove_list(list, [p1, p1+2])):
+                sols.add(p1+1)
+
+            
+    else:
+        return set()
