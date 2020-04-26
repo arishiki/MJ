@@ -44,32 +44,14 @@ def chiitoi_wait(dif):
     return candidate
 
 
-# def shorten_list_from_dif(list, *args):
-
-#     #shorten the list by naming specific index of dif_str
-#     #example:
-#     #slfd([1,1,1,2,2,3,4,5], 2, 4) = [1,1,2,4,5]
-#     #when you want to exclude the 1,2,3 ments found by
-#     #its difference.
-    
-#     start = 0
-#     result = []
-#     for i in range(len(args)):
-#         if i < len(args) - 1:
-#             result = result + list[start:args[i]]
-#             start = args[i] + 1
-#         else:
-#             result = result + list[start:args[i]] + list[args[i] + 2:]
-
-#     return result
-
 
 def list_remove_list(list0, list_rm):
-    #remove elements of list_rm from list0
+    #return a list removed elements of list_rm from list0
+    list_cp = list(list0)
     for i in list_rm:
-        if i in list0:
-            list0.remove(i)
-    return list0
+        if i in list_cp:
+            list_cp.remove(i)
+    return list_cp
     
 
 def is_all_ments(list):
@@ -106,17 +88,35 @@ def analyze_machi_without_head(list, head, sols):
             if p1+2 in list:
                 #if we take shunts away and the remainder was machi without
                 #head, then the full body is also machi without head
-                analyze_machi_without_head(list_remove_list(), \
+                sols = sols | analyze_machi_without_head(list_remove_list(list, [p1, p1+1, p1+2]), \
                                            head, sols)
 
+            sols_add = {x for x in {p1 - 1, p1 + 2} if x > 0 and x < 10} - sols
+            if sols_add and is_all_ments(list_remove_list(list, [p1, p1+1])):
+                sols = sols | sols_add
 
+        if p1+2 in list:
             #example: from 2,2,3,4,4,5,6,7 we take 2,4 away
             #and the remainder is all_ments
             #so we add 3 to sols
             if not p1+1 in sols and \
                is_all_ments(list_remove_list(list, [p1, p1+2])):
                 sols.add(p1+1)
+        
+        
+        if list[1] == p1:
+            if {head, p1} - sols and \
+                is_all_ments(list_remove_list(list, [p1, p1])):
+                #this is when the wait is shabo
+                sols.add(head)
+                sols.add(p1)
 
-            
+            if len(list) >= 3:
+                if list[2] == p1:
+                    sols = sols | analyze_machi_without_head(list_remove_list(list, [p1, p1, p1]), \
+                                            head, sols)
+
+        return sols
+
     else:
         return set()
