@@ -156,35 +156,47 @@ def analyze_tanki1(pattern_tree, list0, sols):
     if not bl1:
         return False
     elif bl1 == 2:
-        candidates = {x for x in map(lambda x: p1+x, pattern_tree[1]) if 1<= x and x <= 9 \
-                            and not x in sols}
-        sols = sols | candidates
-        return 2
+        return [2, {x for x in map(lambda x: p1+x, pattern_tree[1]) if 1<= x and x <= 9 \
+                            and not x in sols}]
     else:
+        plus_sols = set()
         for pattern in pattern_tree[2]:
-            b1 = analyze_tanki1(pattern, list0, sols) or b1
+            sol_p = analyze_tanki1(pattern, list0, sols)
+            b1 = b1 or sol_p
+            if sol_p:
+                plus_sols = plus_sols | sol_p[1]
+                if sol_p[0] == 2:
+                    return [2, plus_sols]
         if b1:
-            return 1
+            return [1, plus_sols]
         else:
-            candidates = {x for x in map(lambda x: p1+x, pattern_tree[1]) if 1<= x and x <= 9 \
+            plus_sols = {x for x in map(lambda x: p1+x, pattern_tree[1]) if 1<= x and x <= 9 \
                             and not x in sols}
-            if candidates and is_all_ments(list_remove_list(list0, map(lambda x: p1+x, pattern_tree[0]))):
-                sols = sols | candidates
-                print(sols)
-                return 1
+            if plus_sols:
+                remainder = list_remove_list(list0, map(lambda x: p1+x, pattern_tree[0]))
+                if not remainder:
+                    return [2, plus_sols]
+                elif is_all_ments(remainder):
+                    return [1, plus_sols]
+                else:
+                    return False
             else:
                 return False
 
 def analyze_tanki2(pattern_tree, list0, sols):
     p1 = list0[0]
-    r1 = analyze_tanki1(pattern_tree, list0, sols)
-    if r1 != 2:
+    t1 = analyze_tanki1(pattern_tree, list0, sols)
+    if t1 and t1[0] == 2:
+        return sols | t1[1]
+    else:
+        new_sols = sols
+        if t1:
+            new_sols = new_sols | t1[1]
+
         if list_in_list([p1, p1, p1], list0):
-            analyze_tanki2(pattern_tree, list_remove_list(list0, [p1,p1,p1]), sols)
+            return analyze_tanki2(pattern_tree, list_remove_list(list0, [p1,p1,p1]), new_sols)
         elif list_in_list([p1, p1+1, p1+2], list0):
-            analyze_tanki2(pattern_tree, list_remove_list(list0, [p1,p1+1,p1+2]), sols)
+            return analyze_tanki2(pattern_tree, list_remove_list(list0, [p1,p1+1,p1+2]), new_sols)
+        else:
+            return new_sols
 
-
-def analyze_tanki_specific_pattern(list):
-    pattern_tree = [[[0,1,2,3],[0,3],[[0,1,2,3,4,5,6],[0,3,6],[]]], [[0,0,0,1],[-1, 1, 2],[]], [[],[],[]]]
-    p1 = list[0]
