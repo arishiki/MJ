@@ -170,6 +170,8 @@ def analyze_tanki1(pattern_tree, list0, sols):
                             and not x in sols}
             if candidates and is_all_ments(list_remove_list(list0, map(lambda x: p1+x, pattern_tree[0]))):
                 sols = sols | candidates
+                print(sols)
+                return 1
             else:
                 return False
 

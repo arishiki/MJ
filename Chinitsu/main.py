@@ -27,5 +27,6 @@ def main(hand):
 
     return sols
 
-l1 = [int(x) for x in sys.argv[1:14]]
-print(main(l1))
+#l1 = [int(x) for x in sys.argv[1:14]]
+
+print(main([1, 2, 3,4,5,5,6,6,7,7,8,8,8]))
