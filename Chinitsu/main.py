@@ -23,7 +23,12 @@ def main(hand):
         if hand.count(x) > 1:
             sols = funcs.analyze_machi_without_head(funcs.list_remove_list(hand, [x, x]), x, sols)
 
-    return funcs.analyze_tanki2(pattern_tanki, hand, sols)
+    sols = funcs.analyze_tanki2(pattern_tanki, hand, sols)
+    for x in sols:
+        if x in hand and hand.count(x) == 4:
+            sols.remove(x)
+
+    return sols
 
 l1 = [int(x) for x in sys.argv[1:14]]
 print(main(l1))
