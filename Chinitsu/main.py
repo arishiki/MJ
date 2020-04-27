@@ -6,9 +6,17 @@ def main(hand):
     #sols is a set of solutions(atari-hai)
     sols = set()
 
+    #9 means head(shabo)
+    pattern_with_head = funcs.init_pattern_tree([[[0, 1],[-1, 2],[0]],   [[0,2],[1],[1]], [[0,0],[0, 9],[2]]\
+                                                   [[0,1,2,3,4],[-1,2,5],[0, 0]], [[0,0,1,1,2,2,3,3],[0,3,9],[2,0]]])
+    
+    pattern_without_head = funcs.init_pattern_tree([[[0],[0],[0]], [[0,0,0,1],[-1,1,2],[0, 0]], [[0,1,2,3],[0,3],[0,1]], \
+                                                      [[0,1,1,1],[-1,0,2],[0, 2]], [[0,1,2,3,4,5,6],[0,3,6],[0,1,0]]])
+
     #if the hand is chiitoi, add the wait for that to sols
-    if funcs.chiitoi_wait(funcs.make_dif(hand)) < 13:
-        sols.add(hand[funcs.chiitoi_wait(funcs.make_dif(hand))])
+    chiitoi = funcs.chiitoi_wait(hand)
+    if chiitoi < 13:
+        sols.add(hand[chiitoi])
 
     #first, fix atama and anaylze.
     for x in hand:

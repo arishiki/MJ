@@ -5,43 +5,60 @@ import re
 def make_dif(list0):
     return ''.join([str(x[1]-x[0]) for x in zip(list0[:-1], list0[1:])])
 
+
+def init_pattern_tree(pattern_list):
+    #pattern_list is given by a list of patterns.
+    #pattern is as such:
+    #[pattern, machi, label]
+    
+    #pattern is a list of int which represents the form of pattern
+    #example: for 23456 3-men wait, pattern is [0,1,2,3,4]
+
+    #machi is a list of int which represents machi
+    #example: for 23456 3-men pattern, machi is [-1, 2, 5]
+
+    #label is a list which represents the form of pattern tree.
+    #it's like universal decimal classification
+    #but to let it more universal, it is a list, not a string.
+    #more complicated pattern which evolves from the pattern with label l
+    #has the label l.append(i) (i is associated in turn)
+    #example:
+    #pattern 23 has label [0]
+    #pattern 23456 has label [0, 0]
+    
+    #remark:
+    #for this program this may seem too elaborate,
+    #but this is for fun and for future application.
+
+    #thus, pattern_list is as below:
+    #[[[0,1],[-1,2],[0]], [[0,1,2,3,4],[-1,2,5],[0, 0]]]
+
+    tree = [[],[],[]]
+
+    for pattern in pattern_list:
+        tree_append(tree, pattern)
+
+    return tree
+
+def tree_append(tree, pattern):
+    p = pattern[2].pop(0)
+    if pattern[2]:
+        tree_append(tree[2][p], pattern)
+    else:
+        tree[2].append(pattern)
+
 #as regular, chiitoi must have 7 different pairs
 #meaning that it doesn't contain 4 identical pies
-def chiitoi_wait(dif):
-    #chiitoi_tempai must have 0, positive number repeats and
-    #only one exceptional positive number.
-
-    #if you come across the exception, you turn the "always_pair" switch off.
-    #except for that, you switch 0, positive, 0, positive,...
-    #we represent this by "expect_0" switch.
-
-    #if you run out the dif list not meeting the exception to the 0-positive
-    #switching,
-    #that means you have chiitoi hand with the last pie being the wait.
-
-    #this function returns the index of the wait of chiitoi hand.
-    #if it isn't chiitoi, this returns 13, which is out of range.
+def chiitoi_wait(hand):
+    #returns an index iff hand is tempai of chiitoi.
+    #(chiitoi can't have 4 identical pies)
+    #returns 13 if it is not.
     
-    expect_0 = True
-    always_pair = True
-    candidate = 12
-    for i in range(12):
-        if expect_0:
-            if dif[i]:
-                if always_pair:
-                    always_pair = False
-                    candidate = i
-                else:
-                    return 13
-            else:
-                expect_0 = False
-        else:
-            if not dif[i]:
-                return 13
-            else:
-                expect_0 = True
-
-    return candidate
+    list_count = [hand.count(x) for x in hand]
+    if list_count.count(1) == 1 and list_count.count(2) == 6:
+        return list_count.index(1)
+    else:
+        return 13
 
 
 
@@ -111,12 +128,42 @@ def analyze_machi_without_head(list, head, sols):
                 sols.add(head)
                 sols.add(p1)
 
-            if len(list) >= 3:
-                if list[2] == p1:
-                    sols = sols | analyze_machi_without_head(list_remove_list(list, [p1, p1, p1]), \
-                                            head, sols)
+            if list.count(p1) >= 3:
+                sols = sols | analyze_machi_without_head(list_remove_list(list, [p1, p1, p1]), \
+                                                        head, sols)
 
         return sols
 
     else:
         return set()
+
+def list_in_list(sub_list_or_itr, super_list):
+    list_cp = list(super_list)
+    for i in sub_list_or_itr:
+        if not i in super_list:
+            return False
+        list_cp.remove(i)
+    else:
+        return True
+
+def analyze_with_head(patern_tree, list0, sols):
+    p1 = list0[0]
+    b1 = False
+    if not list_in_list(map(lambda x: p1+x, patern_tree[0]), list0):
+        return False
+    else:
+        for pattern in pattern_tree[2]:
+            b1 = analyze_with_head(pattern, list0, sols) or b1
+    list_cp = list(list0)
+    for pattern in patterns:
+        for i in pattern[0]:
+            if not p1 + i in list_cp:
+                break
+
+            list_cp.pop(p1 + i)
+        else:
+            hoge
+
+def analyze_tanki_specific_pattern(list):
+    pattern_tree = [[[0,1,2,3],[0,3],[[0,1,2,3,4,5,6],[0,3,6],[]]], [[0,0,0,1],[-1, 1, 2],[]], [[],[],[]]]
+    p1 = list[0]
