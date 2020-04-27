@@ -7,10 +7,10 @@ def main(hand):
     sols = set()
 
     #9 means head(shabo)
-    pattern_with_head = funcs.init_pattern_tree([[[0, 1],[-1, 2],[0]],   [[0,2],[1],[1]], [[0,0],[0, 9],[2]]\
-                                                   [[0,1,2,3,4],[-1,2,5],[0, 0]], [[0,0,1,1,2,2,3,3],[0,3,9],[2,0]]])
+    #pattern_head_fixed = funcs.init_pattern_tree([[[0, 1],[-1, 2],[0]],   [[0,2],[1],[1]], [[0,0],[0, 9],[2]]\
+    #                                               [[0,1,2,3,4],[-1,2,5],[0, 0]], [[0,0,1,1,2,2,3,3],[0,3,9],[2,0]]])
     
-    pattern_without_head = funcs.init_pattern_tree([[[0],[0],[0]], [[0,0,0,1],[-1,1,2],[0, 0]], [[0,1,2,3],[0,3],[0,1]], \
+    pattern_tanki = funcs.init_pattern_tree([[[0],[0],[0]], [[0,0,0,1],[-1,1,2],[0, 0]], [[0,1,2,3],[0,3],[0,1]], \
                                                       [[0,1,1,1],[-1,0,2],[0, 2]], [[0,1,2,3,4,5,6],[0,3,6],[0,1,0]]])
 
     #if the hand is chiitoi, add the wait for that to sols
@@ -23,7 +23,7 @@ def main(hand):
         if hand.count(x) > 1:
             sols = funcs.analyze_machi_without_head(funcs.list_remove_list(hand, [x, x]), x, sols)
 
-    #TBD
+    funcs.analyze_tanki2(pattern_tanki, hand, sols)
 
     return sols
 

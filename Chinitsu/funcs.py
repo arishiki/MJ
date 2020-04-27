@@ -140,29 +140,48 @@ def analyze_machi_without_head(list, head, sols):
 def list_in_list(sub_list_or_itr, super_list):
     list_cp = list(super_list)
     for i in sub_list_or_itr:
-        if not i in super_list:
+        if not i in list_cp:
             return False
         list_cp.remove(i)
     else:
-        return True
+        if list_cp:
+            return 1
+        else:
+            return 2
 
-def analyze_with_head(patern_tree, list0, sols):
+def analyze_tanki1(pattern_tree, list0, sols):
     p1 = list0[0]
     b1 = False
-    if not list_in_list(map(lambda x: p1+x, patern_tree[0]), list0):
+    bl1 = list_in_list(map(lambda x: p1+x, pattern_tree[0]), list0)
+    if not bl1:
         return False
+    elif bl1 == 2:
+        candidates = {x for x in map(lambda x: p1+x, pattern_tree[1]) if 1<= x and x <= 9 \
+                            and not x in sols}
+        sols = sols | candidates
+        return 2
     else:
         for pattern in pattern_tree[2]:
-            b1 = analyze_with_head(pattern, list0, sols) or b1
-    list_cp = list(list0)
-    for pattern in patterns:
-        for i in pattern[0]:
-            if not p1 + i in list_cp:
-                break
-
-            list_cp.pop(p1 + i)
+            b1 = analyze_tanki1(pattern, list0, sols) or b1
+        if b1:
+            return 1
         else:
-            hoge
+            candidates = {x for x in map(lambda x: p1+x, pattern_tree[1]) if 1<= x and x <= 9 \
+                            and not x in sols}
+            if candidates and is_all_ments(list_remove_list(list0, map(lambda x: p1+x, pattern_tree[0]))):
+                sols = sols | candidates
+            else:
+                return False
+
+def analyze_tanki2(pattern_tree, list0, sols):
+    p1 = list0[0]
+    r1 = analyze_tanki1(pattern_tree, list0, sols)
+    if r1 != 2:
+        if list_in_list([p1, p1, p1], list0):
+            analyze_tanki2(pattern_tree, list_remove_list(list0, [p1,p1,p1]), sols)
+        elif list_in_list([p1, p1+1, p1+2], list0):
+            analyze_tanki2(pattern_tree, list_remove_list(list0, [p1,p1+1,p1+2]), sols)
+
 
 def analyze_tanki_specific_pattern(list):
     pattern_tree = [[[0,1,2,3],[0,3],[[0,1,2,3,4,5,6],[0,3,6],[]]], [[0,0,0,1],[-1, 1, 2],[]], [[],[],[]]]
