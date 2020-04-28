@@ -1,5 +1,4 @@
 import funcs
-import re
 import sys
 
 def main(hand):
@@ -30,5 +29,5 @@ def main(hand):
 
     return sols
 
-l1 = [int(x) for x in sys.argv[1:14]]
+l1 = sorted([int(x) for x in sys.argv[1:14]])
 print(main(l1))

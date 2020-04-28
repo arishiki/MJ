@@ -1,11 +1,3 @@
-import re
-
-#make list of differences
-#...a bit awkward to use zip to refer "next" element
-def make_dif(list0):
-    return ''.join([str(x[1]-x[0]) for x in zip(list0[:-1], list0[1:])])
-
-
 def init_pattern_tree(pattern_list):
     #pattern_list is given by a list of patterns.
     #pattern is as such:
@@ -105,12 +97,12 @@ def analyze_machi_without_head(list, head, sols):
             if p1+2 in list:
                 #if we take shunts away and the remainder was machi without
                 #head, then the full body is also machi without head
-                sols = sols | analyze_machi_without_head(list_remove_list(list, [p1, p1+1, p1+2]), \
-                                           head, sols)
+                sols.union(analyze_machi_without_head(list_remove_list(list, [p1, p1+1, p1+2]), \
+                                           head, sols))
 
             sols_add = {x for x in {p1 - 1, p1 + 2} if x > 0 and x < 10} - sols
             if sols_add and is_all_ments(list_remove_list(list, [p1, p1+1])):
-                sols = sols | sols_add
+                sols.union(sols_add)
 
         if p1+2 in list:
             #example: from 2,2,3,4,4,5,6,7 we take 2,4 away
@@ -125,12 +117,11 @@ def analyze_machi_without_head(list, head, sols):
             if {head, p1} - sols and \
                 is_all_ments(list_remove_list(list, [p1, p1])):
                 #this is when the wait is shabo
-                sols.add(head)
-                sols.add(p1)
+                sols.union({head,p1})
 
             if list.count(p1) >= 3:
-                sols = sols | analyze_machi_without_head(list_remove_list(list, [p1, p1, p1]), \
-                                                        head, sols)
+                sols.union(analyze_machi_without_head(list_remove_list(list, [p1, p1, p1]), \
+                                                        head, sols))
 
         return sols
 
@@ -141,7 +132,7 @@ def list_in_list(sub_list_or_itr, super_list):
     list_cp = list(super_list)
     for i in sub_list_or_itr:
         if not i in list_cp:
-            return False
+            return None
         list_cp.remove(i)
     else:
         if list_cp:
@@ -154,7 +145,7 @@ def analyze_tanki1(pattern_tree, list0, sols):
     b1 = False
     bl1 = list_in_list(map(lambda x: p1+x, pattern_tree[0]), list0)
     if not bl1:
-        return False
+        return None
     elif bl1 == 2:
         return [2, {x for x in map(lambda x: p1+x, pattern_tree[1]) if 1<= x and x <= 9 \
                             and not x in sols}]
@@ -179,19 +170,19 @@ def analyze_tanki1(pattern_tree, list0, sols):
                 elif is_all_ments(remainder):
                     return [1, plus_sols]
                 else:
-                    return False
+                    return None
             else:
-                return False
+                return None
 
 def analyze_tanki2(pattern_tree, list0, sols):
     p1 = list0[0]
     t1 = analyze_tanki1(pattern_tree, list0, sols)
     if t1 and t1[0] == 2:
-        return sols | t1[1]
+        return sols.union(t1[1])
     else:
         new_sols = sols
         if t1:
-            new_sols = new_sols | t1[1]
+            new_sols.union(t1[1])
 
         if list_in_list([p1, p1, p1], list0):
             return analyze_tanki2(pattern_tree, list_remove_list(list0, [p1,p1,p1]), new_sols)
